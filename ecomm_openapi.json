@@ -1,0 +1,290 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ecommerce Mock API",
+    "description": "Mock ecommerce endpoints for agentic AI development.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/products": {
+      "get": {
+        "operationId": "getProducts",
+        "summary": "List products",
+        "description": "Returns the available products in the catalogue.",
+        "tags": [
+          "catalogue"
+        ],
+        "responses": {
+          "200": {
+            "description": "The product catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/price/{product_id}": {
+      "get": {
+        "operationId": "getProductPrice",
+        "summary": "Get product price",
+        "description": "Returns the price and currency for a product.",
+        "tags": [
+          "price"
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "description": "Product identifier, for example belt, shoes, wallet, or jacket. Matching is case-insensitive.",
+            "schema": {
+              "type": "string",
+              "examples": [
+                "belt"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product price and currency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/ProductNotFound"
+          }
+        }
+      }
+    },
+    "/availability/{product_id}": {
+      "get": {
+        "operationId": "getProductAvailability",
+        "summary": "Get product availability",
+        "description": "Returns stock status and quantity for a product.",
+        "tags": [
+          "availability"
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "description": "Product identifier, for example belt, shoes, wallet, or jacket. Matching is case-insensitive.",
+            "schema": {
+              "type": "string",
+              "examples": [
+                "belt"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product stock status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/ProductNotFound"
+          }
+        }
+      }
+    },
+    "/reviews/{product_id}": {
+      "get": {
+        "operationId": "getProductReviews",
+        "summary": "Get product reviews",
+        "description": "Returns review comments and their average rating for a product.",
+        "tags": [
+          "reviews"
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "description": "Product identifier, for example belt, shoes, wallet, or jacket. Matching is case-insensitive.",
+            "schema": {
+              "type": "string",
+              "examples": [
+                "belt"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product reviews and average rating.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/ProductNotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Product identifier."
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "PriceResponse": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "price",
+          "currency"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          }
+        }
+      },
+      "AvailabilityResponse": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "in_stock",
+          "quantity"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "in_stock": {
+            "type": "boolean"
+          },
+          "quantity": {
+            "type": "integer"
+          }
+        }
+      },
+      "ReviewComment": {
+        "type": "object",
+        "required": [
+          "comment",
+          "rating"
+        ],
+        "properties": {
+          "comment": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          }
+        }
+      },
+      "ReviewResponse": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "reviews",
+          "rating"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewComment"
+            }
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Average rating, from 1 to 5."
+          }
+        }
+      },
+      "HTTPError": {
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "properties": {
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "ProductNotFound": {
+        "description": "No product exists with the supplied product_id.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPError"
+            }
+          }
+        }
+      }
+    }
+  }
+}
